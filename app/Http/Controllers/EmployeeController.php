@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends Controller
 {
@@ -12,8 +13,16 @@ class EmployeeController extends Controller
      */
     public function index()
 {
+
 $pageTitle = 'Employee List';
-return view('employee.index', ['pageTitle' => $pageTitle]);
+$employees = DB::table('employees')
+    ->select('*', 'employees.id as employee_id', 'positions.name as position_name')
+    ->leftJoin('positions', 'employees.position_id', '=', 'positions.id')
+    ->get();
+
+
+return view('employee.index', ['pageTitle' => $pageTitle,'employees' => $employees
+]);
 }
 
 
@@ -23,7 +32,8 @@ return view('employee.index', ['pageTitle' => $pageTitle]);
     public function create()
 {
 $pageTitle = 'Create Employee';
-return view('employee.create', compact('pageTitle'));
+$positions = DB::table('positions')->get();
+return view('employee.create', compact('pageTitle', 'positions'));
 }
 
 
@@ -46,7 +56,15 @@ $validator = Validator::make($request->all(), [
 if ($validator->fails()) {
 return redirect()->back()->withErrors($validator)->withInput();
 }
-return $request->all();
+// INSERT QUERY
+DB::table('employees')->insert([
+'firstname' => $request->firstName,
+'lastname' => $request->lastName,
+'email' => $request->email,
+'age' => $request->age,
+'position_id' => $request->position,
+]);
+return redirect()->route('employees.index');
 }
 
 
@@ -55,31 +73,62 @@ return $request->all();
      */
     public function show(string $id)
     {
-        //
+    $pageTitle = 'Employee Detail';
+    $employee = DB::table('employees')
+    ->select('*', 'employees.id as employee_id', 'positions.name as position_name')
+    ->leftJoin('positions', 'employees.position_id', '=', 'positions.id')
+    ->where('employees.id', $id)
+    ->first();
+    return view('employee.show', compact('pageTitle', 'employee'));
     }
+
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        //
+        $pageTitle = 'Edit Employee';
+    $positions = DB::table('positions')->get();
+    $employee = DB::table('employees')
+    ->select('*', 'employees.id as employee_id', 'positions.name as position_name')
+    ->leftJoin('positions', 'employees.position_id', '=', 'positions.id')
+    ->where('employees.id', $id)
+    ->first();
+    return view('employee.edit', compact('pageTitle', 'positions','employee'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+   public function update(Request $request, $id)
+{
+    // UPDATE QUERY
+    DB::table('employees')
+        ->where('id', $id)
+        ->update([
+            'firstname' => $request->firstName,
+            'lastname' => $request->lastName,
+            'email' => $request->email,
+            'age' => $request->age,
+            'position_id' => $request->position,
+        ]);
+
+    return redirect()->route('employees.index');
+}
+
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
-    }
+// QUERY BUILDER
+DB::table('employees')
+->where('id', $id)
+->delete();
+return redirect()->route('employees.index');
+}
 
 }

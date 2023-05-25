@@ -39,16 +39,6 @@ btn-outline-light my-2 ms-md-auto"><i
             @csrf
             <div class="row justify-content-center">
                 <div class="p-5 bg-light rounded-3 border col-xl-6">
-                    @if ($errors->any())
-                        @foreach ($errors->all() as $error)
-                            <div class="alert alert-danger
-alert-dismissible fade show">
-                                {{ $error }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
-                            </div>
-                        @endforeach
-                    @endif
                     <div class="mb-3 text-center">
                         <i class="bi-person-circle fs-1"></i>
                         <h4>Create Employee</h4>
@@ -57,25 +47,57 @@ alert-dismissible fade show">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="firstName" class="form-label">First Name</label>
-                            <input class="form-control" type="text" name="firstName" id="firstName" value=""
+                            <input class="form-control{{ $errors->has('firstName') ? ' is-invalid' : '' }} "
+                                type="text" name="firstName" id="firstName" value="{{ old('firstName') }}"
                                 placeholder="Enter First Name">
+                            @error('firstName')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="lastName" class="form-label">Last
                                 Name</label>
-                            <input class="form-control" type="text" name="lastName" id="lastName" value=""
+                            <input class="form-control{{ $errors->has('lastName') ? ' is-invalid' : '' }}"
+                                type="text" name="lastName" id="lastName" value="{{ old('lastName') }}"
                                 placeholder="Enter Last Name">
+                            @error('lastName')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input class="form-control" type="text" name="email" id="email" value=""
-                                placeholder="Enter Email">
+                            <input class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" type="text"
+                                name="email" id="email" value="{{ old('email') }}" placeholder="Enter Email">
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="age" class="form-label">Age</label>
-                            <input class="form-control" type="text" name="age" id="age" value=""
-                                placeholder="Enter Age">
+                            <input class="form-control{{ $errors->has('age') ? ' is-invalid' : '' }}" type="text"
+                                name="age" id="age" value="{{ old('age') }}" placeholder="Enter Age">
+                            @error('age')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="position" class="form-label">Position</label>
+                            <select name="position" id="position" class="form-select">
+                                @foreach ($positions as $position)
+                                    <option value="{{ $position->id }}"
+                                        {{ old('position') == $position->id ? 'selected' : '' }}>
+                                        {{ $position->code .
+                                            ' -
+                                                                                                                        ' .
+                                            $position->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('position')
+                                <div class="text-danger"><small>{{ $message }}</small></div>
+                            @enderror
+                        </div>
+
                     </div>
                     <hr>
                     <div class="row">
